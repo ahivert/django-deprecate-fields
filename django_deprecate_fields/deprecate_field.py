@@ -1,11 +1,10 @@
 import logging
 import sys
 import warnings
-
 logger = logging.getLogger(__file__)
 
 
-class DeprecatedField(object):
+class _DeprecatedField:
     """
     Descriptor class for deprecated fields. Do not use directly, use the
     deprecate_field function instead.
@@ -30,9 +29,7 @@ class DeprecatedField(object):
         )
         warnings.warn(msg, DeprecationWarning, stacklevel=2)
         logger.warning(msg)
-        if not callable(self.val):
-            return self.val
-        return self.val()
+        return self.val
 
     def __set__(self, obj, val):
         msg = "writing to deprecated field %s.%s" % (
@@ -58,7 +55,7 @@ def deprecate_field(field_instance, return_instead=None):
     the field will pretend to have
     """
     if not set(sys.argv) & {"makemigrations", "migrate", "showmigrations"}:
-        return DeprecatedField(return_instead)
+        return _DeprecatedField(return_instead)
 
     field_instance.null = True
     return field_instance
